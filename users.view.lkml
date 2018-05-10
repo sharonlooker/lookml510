@@ -12,6 +12,18 @@ view: users {
     sql: ${TABLE}.age ;;
   }
 
+  dimension: is_over_age_18  {
+    type: yesno
+    sql: ${age} > 18 ;;
+  }
+
+  dimension: age_tier {
+    type: tier
+    tiers: [0,10,20,30,50,80]
+    style: integer
+    sql: ${age} ;;
+  }
+
   dimension: city {
     type: string
     sql: ${TABLE}.city ;;
@@ -32,9 +44,16 @@ view: users {
       week,
       month,
       quarter,
-      year
+      year,
+      day_of_week,
+      day_of_month
     ]
     sql: ${TABLE}.created_at ;;
+  }
+
+  dimension: days_as_user {
+    type: number
+    sql: DATEDIFF(day, ${created_raw}, SYSDATE ) ;;
   }
 
   dimension: email {
@@ -47,14 +66,20 @@ view: users {
     sql: ${TABLE}.first_name ;;
   }
 
-  dimension: gender {
-    type: string
-    sql: ${TABLE}.gender ;;
-  }
 
   dimension: last_name {
     type: string
     sql: ${TABLE}.last_name ;;
+  }
+
+  dimension: full_name {
+    type: string
+    sql: ${first_name} || ' ' || ${last_name};;
+  }
+
+  dimension: gender {
+    type: string
+    sql: ${TABLE}.gender ;;
   }
 
   dimension: latitude {
@@ -85,5 +110,10 @@ view: users {
   measure: count {
     type: count
     drill_fields: [id, first_name, last_name, events.count, order_items.count]
+  }
+
+  measure: average_age {
+    type: average
+    sql: ${age} ;;
   }
 }
